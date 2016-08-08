@@ -4,47 +4,74 @@ use strict;
 use warnings;
 use HTTP::Request;
 use LWP::UserAgent;
+use Term::ANSIColor qw(:constants);
 
 
-print("entry URL to scan (FORMAT! -----> http://www.site.com/)\n");
-   
-    my $url=<STDIN>;
-    chomp($url);
+
+    my $params;
+    $params = @ARGV;
+    chomp($params);
     
-    if( $url eq "" ){
-	  print("value null....\n");
+    if( $params ne 2 ){
+	  print("Usage : www.site.com + PATH_TO_WORDLIST\n");
+	  print("Example : www.example.com /home/JhonDoe/rockyou.txt\n");
 	  exit;
     }
+print RED,"";
+print  <<EOT;
+0MdKMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMM0OMd
+EOT
+print GREEN,"\t ****FIND  ADMIN PANEL****\n",RESET;
+print RED,"";
+print <<EOT;
+0MxcxWMMMMMNXXNMMMMMMMMMMMMMMMNXXNMMMMMWkcKMd
+EOT
 
-    my $regex = qr/^(https?:\/\/)?([\da-z\.-]+)\.([a-z\.]{2,6})([\/\w \.-]*)*\/?$/; 
+    	#my $regex = qr/^(?:(https|http):\/\/)?([\da-z\.-]+)\.([a-z\.]{2,6})([\/\w \.-]*)*\/?$/; 
+   	#my $regex = qr/^(?:(ftp|http|https):\/\/)?(?:[\w-]+\.)+[a-z]{3,6}$/;	
+    	my $regex = qr/(^|\s)((https?:\/\/)?[\w-]+(\.[\w-]+)+\.?(:\d+)?(\/\S*)?)/;
+	my $reg_fl = qr/\.txt$/i;
     
-    
-    if($url =~ $regex ) { 
-	    #$host = "http://$host/";
-	    #if be used 'open' with some file maybe will be more interesting http://perldoc.perl.org/functions/open.html 
-	    my @admin_panel = ("admin.php","admin/login.php", "admin/");
+    if($ARGV[0] =~ $regex ) { 
 
+	    my $filename = $ARGV[1];
+	    
+	    if ($filename =~ $reg_fl){
+		if(open(my $fh, '<', $filename)){
+			while (my $row = <$fh>){
+	
+			chomp $row;
 
-	    foreach my $search(@admin_panel){
+	    foreach my $search($row){
 
-		    my $url_ = $url.$search;
-		    my $request = HTTP::Request->new(GET=>$url_);
+		
+		    my $params_ = "http://".$ARGV[0]."/".$search;
+		    my $request = HTTP::Request->new(GET=>$params_);
 		    my $useragent = LWP::UserAgent->new();
 
 		    my $response = $useragent->request($request);
-		    if ($response->is_success){
-			            print("Admin Panel Found! : $url_\n");
-				            exit;
-				    }
-				    else {
-					            print("Searching.... : $url$search\n");
-					    }
+			if ($response->is_success){
+				print(RED,"\n*****ADMIN PANEL FOUND!***** : ",RESET);
+				print (GREEN,"$params_\n",RESET);
+				exit;
+			}
+			else {
+				print(GREEN,"\nSearching.... : $ARGV[0]/$search\n",RESET);
+			}
+	    	}
 
-    			}
+
+           }
+                    }
+              } else{
+                      print(WHITE,"$filename IS NOT A VALID TXT FILE...\n",RESET);
+              }
+	    
     }
     else {
-	    print("$url the url is not a valid format..\n");
+	    print(WHITE,"$ARGV[0] IS NOT A VALID URL..\n",RESET);
 	    exit;
 
     }
+
     

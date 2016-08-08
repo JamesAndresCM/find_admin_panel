@@ -51,7 +51,7 @@ EOT
 
 		    my $response = $useragent->request($request);
 			if ($response->is_success){
-				print(RED,"\n*****ADMIN PANEL FOUND!***** : ",RESET);
+				print(WHITE,"\n*****ADMIN PANEL FOUND!***** : ",RESET);
 				print (GREEN,"$params_\n",RESET);
 				exit;
 			}
